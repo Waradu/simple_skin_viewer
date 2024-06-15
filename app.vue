@@ -43,9 +43,13 @@
             v-if="max"
             :style="{ scale: '1.4', rotate: '45deg' }"
           />
-          <div class="hover">
+          <div class="hover" v-if="!max">
             <h3>Hide UI</h3>
             <p>Move mouse to the side to show part of the UI</p>
+          </div>
+          <div class="hover" v-if="max">
+            <h3>Show UI</h3>
+            <p>Shows the UI again</p>
           </div>
         </div>
         <div class="action wrdu-element reset" @click="reset">
