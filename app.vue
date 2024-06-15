@@ -1,5 +1,5 @@
 <template>
-  <div class="context">
+  <div class="context" v-if="!max">
     <h2>Waradu's Skin Editor</h2>
     <p>
       Click 'Change Skin' and select the skin file. Then, edit the local skin
@@ -15,7 +15,7 @@
     ref="viewerRef"
   />
   <div class="overlay">
-    <div class="left">
+    <div class="left" :class="{ hidden: max }">
       <div class="wrdu-floating skin">
         <div class="image wrdu-element active" v-if="skin">
           <img :src="skin" alt="skin" />
@@ -24,15 +24,41 @@
           <button id="upload">Change Skin</button>
         </div>
       </div>
+      <div class="hover-area"></div>
     </div>
-    <div class="center">
+    <div class="center" :class="{ hidden: max }">
       <div class="actions wrdu-floating">
         <div class="action wrdu-element screenshot" @click="screenShot">
           <Iconsax name="Camera" thickness="2" />
+          <div class="hover">
+            <h3>Take Screenshot</h3>
+            <p>Take and save a screenshot of the current canvas</p>
+          </div>
+        </div>
+        <div class="action wrdu-element maximize" @click="max = !max">
+          <Iconsax name="Maximize3" thickness="2" v-if="!max" />
+          <Iconsax
+            name="Add"
+            thickness="2"
+            v-if="max"
+            :style="{ scale: '1.4', rotate: '45deg' }"
+          />
+          <div class="hover">
+            <h3>Hide UI</h3>
+            <p>Move mouse to the side to show part of the UI</p>
+          </div>
+        </div>
+        <div class="action wrdu-element reset" @click="reset">
+          <Iconsax name="ArrowRotateLeft" thickness="2" />
+          <div class="hover">
+            <h3>Reset</h3>
+            <p>Reset Everything back to normal</p>
+          </div>
         </div>
       </div>
+      <div class="hover-area"></div>
     </div>
-    <div class="right">
+    <div class="right" :class="{ hidden: max }">
       <div class="wrdu-window wrdu-vertical">
         <div class="wrdu-floating wrdu-dark header">
           <h2 class="text">Inner</h2>
@@ -77,12 +103,15 @@
           { value: 'walk', text: 'Walk' },
         ]"
       />
+      <div class="hover-area"></div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import Viewer from "~/components/Viewer.vue";
+
+const max = ref(false);
 
 const layers = ref([
   {
@@ -133,6 +162,8 @@ const animation = ref({
   text: "None",
 });
 
+let fileUpdateInterval: ReturnType<typeof setInterval> | null = null;
+
 const skin = ref("/skin.png");
 
 const viewerRef = ref<InstanceType<typeof Viewer> | null>(null);
@@ -140,6 +171,70 @@ const viewerRef = ref<InstanceType<typeof Viewer> | null>(null);
 function screenShot() {
   if (viewerRef.value && viewerRef.value.screenShot) {
     viewerRef.value.screenShot();
+  }
+}
+
+function reset() {
+  if (fileUpdateInterval !== null) {
+    clearInterval(fileUpdateInterval);
+    fileUpdateInterval = null;
+  }
+
+  max.value = false;
+
+  layers.value = [
+    {
+      name: "Head",
+      value: "head",
+      inner: true,
+      outer: true,
+    },
+    {
+      name: "Body",
+      value: "body",
+      inner: true,
+      outer: true,
+    },
+    {
+      name: "Right Arm",
+      value: "rightArm",
+      inner: true,
+      outer: true,
+    },
+    {
+      name: "Left Arm",
+      value: "leftArm",
+      inner: true,
+      outer: true,
+    },
+    {
+      name: "Right Leg",
+      value: "rightLeg",
+      inner: true,
+      outer: true,
+    },
+    {
+      name: "Left Leg",
+      value: "leftLeg",
+      inner: true,
+      outer: true,
+    },
+  ];
+
+  model.value = {
+    value: "auto-detect",
+    text: "Auto",
+  };
+
+  animation.value = {
+    value: "none",
+    text: "None",
+  };
+
+  skin.value = "/skin.png";
+
+  if (viewerRef.value && viewerRef.value.reset) {
+    viewerRef.value.reset();
   }
 }
 
@@ -182,14 +277,18 @@ async function monitorFile(fileHandle: FileSystemFileHandle) {
 
   skin.value = lastUrl;
 
-  setInterval(async () => {
+  if (fileUpdateInterval !== null) {
+    clearInterval(fileUpdateInterval);
+  }
+
+  fileUpdateInterval = setInterval(async () => {
     const currentUrl = await readFile(fileHandle);
     if (currentUrl !== lastUrl) {
       URL.revokeObjectURL(lastUrl);
       skin.value = currentUrl;
       lastUrl = currentUrl;
     }
-  }, 2500);
+  }, 2000);
 }
 </script>
 
@@ -217,7 +316,7 @@ body,
     max-width: 400px;
     z-index: 1000;
     color: #ffffff;
-    opacity: .5;
+    opacity: 0.5;
     user-select: none;
     pointer-events: none;
   }
@@ -232,7 +331,6 @@ body,
     pointer-events: none;
     display: flex;
     justify-content: space-between;
-    padding: 20px;
     color: white;
     font-family: Inter;
 
@@ -243,8 +341,64 @@ body,
       flex-direction: column;
       gap: 20px;
       justify-content: center;
-      min-width: 300px;
-      width: 300px;
+      min-width: 320px;
+      width: 320px;
+      transition: translate 0.2s ease-in-out;
+      position: relative;
+      padding: 20px;
+
+      .hover-area {
+        display: none;
+      }
+
+      &.hidden {
+        &.left {
+          translate: -330px 0;
+
+          .hover-area {
+            right: -60px;
+            width: 60px;
+            height: 100%;
+          }
+        }
+
+        &.center {
+          height: max-content;
+          translate: 0 130px;
+          align-self: end;
+
+          .hover-area {
+            top: -60px;
+            width: 100%;
+            height: 60px;
+          }
+        }
+
+        &.right {
+          translate: 330px 0;
+
+          .hover-area {
+            left: -60px;
+            width: 60px;
+            height: 100%;
+          }
+        }
+
+        &.left,
+        &.right,
+        &.center {
+          .hover-area {
+            display: block;
+            position: absolute;
+          }
+
+          &:has(.hover-area:hover),
+          &:hover {
+            translate: 0 0;
+            pointer-events: all;
+          }
+        }
+      }
 
       * {
         pointer-events: auto;
@@ -257,6 +411,8 @@ body,
 
       .actions {
         padding: 5px;
+        display: flex;
+        gap: 5px;
 
         .action {
           transition: 0.1s ease-in-out;
@@ -268,6 +424,45 @@ body,
           justify-content: center;
           border-radius: 19px;
           cursor: pointer;
+          position: relative;
+          overflow: visible;
+
+          .hover {
+            overflow: hidden;
+            position: absolute;
+            width: 200px;
+            padding: 10px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(20px);
+            bottom: 130%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            text-align: center;
+            pointer-events: none;
+            z-index: 100;
+            scale: 0;
+            transition: 0.2s ease-in-out;
+            transform-origin: center bottom;
+
+            h3 {
+              font-size: 14px;
+              pointer-events: none;
+            }
+
+            p {
+              font-size: 12px;
+              pointer-events: none;
+            }
+          }
+
+          &:hover {
+            .hover {
+              scale: 1;
+            }
+          }
         }
       }
     }

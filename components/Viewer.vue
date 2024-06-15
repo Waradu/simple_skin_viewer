@@ -188,7 +188,6 @@ function extractAndSetFavicon(skin: string) {
 }
 
 function screenShot() {
-  console.log("screenshot");
   if (!skinViewer) return;
 
   skinViewer.width = 1920;
@@ -208,7 +207,23 @@ function screenShot() {
   skinViewer!.height = window.innerHeight;
 }
 
-defineExpose({ screenShot });
+function reset() {
+  if (!skinViewer) return;
+
+  skinViewer.dispose();
+
+  skinViewer = new SkinViewer({
+    canvas: document.getElementById("viewer") as HTMLCanvasElement,
+    width: window.innerWidth,
+    height: window.innerHeight,
+    zoom: 0.8,
+    skin: skin.value,
+    panorama: "/panoramas/panorama.jpg",
+    model: model.value as "default" | "slim" | "auto-detect",
+  });
+}
+
+defineExpose({ screenShot, reset });
 </script>
 
 <style lang="scss">
