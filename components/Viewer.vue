@@ -207,7 +207,7 @@ function screenShot() {
   skinViewer!.height = window.innerHeight;
 }
 
-function reset() {
+function reset(skin: string) {
   if (!skinViewer) return;
 
   skinViewer.dispose();
@@ -217,7 +217,7 @@ function reset() {
     width: window.innerWidth,
     height: window.innerHeight,
     zoom: 0.8,
-    skin: skin.value,
+    skin: skin,
     panorama: "/panoramas/panorama.jpg",
     model: model.value as "default" | "slim" | "auto-detect",
   });

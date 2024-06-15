@@ -21,7 +21,8 @@
           <img :src="skin" alt="skin" />
         </div>
         <div class="upload">
-          <button id="upload">Change Skin</button>
+          <button id="upload">Change</button>
+          <button id="remove" @click="reset(true)">Remove</button>
         </div>
       </div>
       <div class="hover-area"></div>
@@ -52,11 +53,11 @@
             <p>Shows the UI again</p>
           </div>
         </div>
-        <div class="action wrdu-element reset" @click="reset">
+        <div class="action wrdu-element reset" @click="reset(false)">
           <Iconsax name="ArrowRotateLeft" thickness="2" />
           <div class="hover">
             <h3>Reset</h3>
-            <p>Reset Everything back to normal</p>
+            <p>Reset the UI (to remove skin click 'Remove' in left sidebar)</p>
           </div>
         </div>
       </div>
@@ -178,67 +179,68 @@ function screenShot() {
   }
 }
 
-function reset() {
-  if (fileUpdateInterval !== null) {
-    clearInterval(fileUpdateInterval);
-    fileUpdateInterval = null;
-  }
+function reset(removeSkin: boolean) {
+  if (removeSkin) {
+    if (fileUpdateInterval !== null) {
+      clearInterval(fileUpdateInterval);
+      fileUpdateInterval = null;
+      skin.value = "/skin.png";
+    }
+  } else {
+    max.value = false;
 
-  max.value = false;
+    layers.value = [
+      {
+        name: "Head",
+        value: "head",
+        inner: true,
+        outer: true,
+      },
+      {
+        name: "Body",
+        value: "body",
+        inner: true,
+        outer: true,
+      },
+      {
+        name: "Right Arm",
+        value: "rightArm",
+        inner: true,
+        outer: true,
+      },
+      {
+        name: "Left Arm",
+        value: "leftArm",
+        inner: true,
+        outer: true,
+      },
+      {
+        name: "Right Leg",
+        value: "rightLeg",
+        inner: true,
+        outer: true,
+      },
+      {
+        name: "Left Leg",
+        value: "leftLeg",
+        inner: true,
+        outer: true,
+      },
+    ];
 
-  layers.value = [
-    {
-      name: "Head",
-      value: "head",
-      inner: true,
-      outer: true,
-    },
-    {
-      name: "Body",
-      value: "body",
-      inner: true,
-      outer: true,
-    },
-    {
-      name: "Right Arm",
-      value: "rightArm",
-      inner: true,
-      outer: true,
-    },
-    {
-      name: "Left Arm",
-      value: "leftArm",
-      inner: true,
-      outer: true,
-    },
-    {
-      name: "Right Leg",
-      value: "rightLeg",
-      inner: true,
-      outer: true,
-    },
-    {
-      name: "Left Leg",
-      value: "leftLeg",
-      inner: true,
-      outer: true,
-    },
-  ];
+    model.value = {
+      value: "auto-detect",
+      text: "Auto",
+    };
 
-  model.value = {
-    value: "auto-detect",
-    text: "Auto",
-  };
+    animation.value = {
+      value: "none",
+      text: "None",
+    };
 
-  animation.value = {
-    value: "none",
-    text: "None",
-  };
-
-  skin.value = "/skin.png";
-
-  if (viewerRef.value && viewerRef.value.reset) {
-    viewerRef.value.reset();
+    if (viewerRef.value && viewerRef.value.reset) {
+      viewerRef.value.reset(skin.value);
+    }
   }
 }
 
@@ -437,7 +439,6 @@ body,
             width: 200px;
             padding: 10px;
             border-radius: 12px;
-            background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(20px);
             bottom: 130%;
             display: flex;
@@ -445,11 +446,13 @@ body,
             align-items: center;
             gap: 3px;
             text-align: center;
+            background: rgba(0, 0, 0, 0.8);
             pointer-events: none;
             z-index: 100;
             scale: 0;
             transition: 0.2s ease-in-out;
             transform-origin: center bottom;
+            z-index: 1;
 
             h3 {
               font-size: 14px;
@@ -536,6 +539,14 @@ body,
 
           &:hover {
             background: rgba(250, 250, 250, 0.4);
+          }
+
+          &#remove {
+            background-color: rgba(36, 36, 36, 0.3);
+
+            &:hover {
+              background: rgba(36, 36, 36, 0.6);
+            }
           }
         }
       }
