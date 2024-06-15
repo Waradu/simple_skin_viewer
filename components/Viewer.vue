@@ -105,6 +105,9 @@ watch(
   (newSkin: any) => {
     if (skinViewer) {
       skinViewer.loadSkin(newSkin);
+      if (newSkin) {
+        extractAndSetFavicon(newSkin);
+      }
     }
   }
 );
@@ -148,17 +151,52 @@ function setAnimation(animation: string) {
   }
 }
 
+function extractAndSetFavicon(skin: string) {
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  const img = new Image();
+  img.src = skin;
+
+  if (!context) return;
+
+  img.onload = () => {
+    canvas.width = 8;
+    canvas.height = 8;
+    context.drawImage(img, -8, -8);
+
+    const faviconCanvas = document.createElement("canvas");
+    const faviconContext = faviconCanvas.getContext("2d");
+    faviconCanvas.width = 32;
+    faviconCanvas.height = 32;
+
+    if (!faviconContext) return;
+
+    faviconContext.imageSmoothingEnabled = false;
+    faviconContext.drawImage(canvas, 0, 0, 8, 8, 0, 0, 32, 32);
+
+    const faviconUrl = faviconCanvas.toDataURL("image/png");
+
+    useHead({
+      link: [
+        {
+          rel: "icon",
+          href: faviconUrl,
+        },
+      ],
+    });
+  };
+}
+
 function screenShot() {
   console.log("screenshot");
   if (!skinViewer) return;
 
-  
   skinViewer.width = 1920;
   skinViewer.height = 1080;
   skinViewer.zoom = 0.8;
 
   skinViewer.render();
-  
+
   const image = skinViewer.canvas.toDataURL();
 
   const link = document.createElement("a");

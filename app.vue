@@ -1,4 +1,12 @@
 <template>
+  <div class="context">
+    <h2>Waradu's Skin Editor</h2>
+    <p>
+      Click 'Change Skin' and select the skin file. Then, edit the local skin
+      file with your preferred image or skin editor, and watch the website
+      auto-update your skin in real-time.
+    </p>
+  </div>
   <Viewer
     :model="model.value"
     :animation="animation.value"
@@ -181,7 +189,7 @@ async function monitorFile(fileHandle: FileSystemFileHandle) {
       skin.value = currentUrl;
       lastUrl = currentUrl;
     }
-  }, 5000);
+  }, 2500);
 }
 </script>
 
@@ -201,6 +209,18 @@ body,
   height: 100%;
   background-color: #0c0c0c;
   overflow: hidden;
+
+  .context {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    max-width: 400px;
+    z-index: 1000;
+    color: #ffffff;
+    opacity: .5;
+    user-select: none;
+    pointer-events: none;
+  }
 
   .overlay {
     position: absolute;
