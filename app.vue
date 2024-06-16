@@ -195,8 +195,6 @@ async function getSkin() {
     const response = await fetch(`https://mineskin.eu/skin/${skinName}`);
     if (!response.ok) throw new Error("Skin not found");
 
-    console.log(response);
-
     const blob = await response.blob();
     const skinUrl = URL.createObjectURL(blob);
 
