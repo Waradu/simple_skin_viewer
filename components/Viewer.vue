@@ -104,6 +104,7 @@ watch(
   () => props.skin,
   (newSkin: any) => {
     if (skinViewer) {
+      skin.value = newSkin;
       skinViewer.loadSkin(newSkin);
       extractAndSetFavicon(newSkin);
     }
