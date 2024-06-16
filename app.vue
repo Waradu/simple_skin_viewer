@@ -190,6 +190,24 @@ const skin = ref("/skin.png");
 
 const input = ref<HTMLInputElement | null>(null);
 
+useHead({
+  meta: [
+    {
+      property: "og:title",
+      content: skinName + "'s Skin'",
+    },
+    {
+      property: "og:description",
+      content:
+        "Preview any skin and even live updated changes on local skin files",
+    },
+    {
+      name: "theme-color",
+      content: "#ffffff",
+    },
+  ],
+});
+
 async function getSkin() {
   if (!input.value) return;
   const skinName = input.value.value;
@@ -302,28 +320,6 @@ onMounted(async () => {
   if (skinName && input.value) {
     input.value.value = skinName;
     await getSkin();
-
-    useHead({
-      meta: [
-        {
-          property: "og:title",
-          content: input.value.value,
-        },
-        {
-          property: "og:image",
-          content: skin.value,
-        },
-        {
-          property: "og:description",
-          content:
-            "Preview any skin and even live updated changes on local skin files",
-        },
-        {
-          name: "theme-color",
-          content: "#ffffff",
-        },
-      ],
-    });
   }
 });
 
