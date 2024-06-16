@@ -35,6 +35,7 @@
           name=""
           id=""
           placeholder="Get Skin from Name"
+          @keydown.enter="getSkin"
         />
         <button @click="getSkin">Go</button>
       </div>
@@ -188,32 +189,16 @@ const input = ref<HTMLInputElement | null>(null);
 
 async function getSkin() {
   if (!input.value) return;
-  const skinName = input.value;
+  const skinName = input.value.value;
 
   try {
-    const response = await fetch(
-      `https://api.mojang.com/users/profiles/minecraft/${skinName}`
-    );
-    if (!response.ok) throw new Error("User not found");
+    const response = await fetch(`https://mineskin.eu/skin/${skinName}`);
+    if (!response.ok) throw new Error("Skin not found");
 
-    const data: { id: string } = await response.json();
-    const uuid = data.id;
-    const skinResponse = await fetch(
-      `https://sessionserver.mojang.com/session/minecraft/profile/${uuid}`
-    );
-    if (!skinResponse.ok) throw new Error("Skin not found");
+    console.log(response);
 
-    const skinData: { properties: { name: string; value: string }[] } =
-      await skinResponse.json();
-    const skinProperty = skinData.properties.find(
-      (prop): prop is { name: string; value: string } =>
-        prop.name === "textures"
-    );
-
-    if (!skinProperty) throw new Error("Skin property not found");
-
-    const skinValue = skinProperty.value;
-    const skinUrl = JSON.parse(atob(skinValue)).textures.SKIN.url;
+    const blob = await response.blob();
+    const skinUrl = URL.createObjectURL(blob);
 
     skin.value = skinUrl;
   } catch (error) {
