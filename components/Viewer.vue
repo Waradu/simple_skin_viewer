@@ -105,9 +105,7 @@ watch(
   (newSkin: any) => {
     if (skinViewer) {
       skinViewer.loadSkin(newSkin);
-      if (newSkin) {
-        extractAndSetFavicon(newSkin);
-      }
+      extractAndSetFavicon(newSkin);
     }
   }
 );
@@ -160,9 +158,9 @@ function extractAndSetFavicon(skin: string) {
   if (!context) return;
 
   img.onload = () => {
-    canvas.width = 8;
-    canvas.height = 8;
-    context.drawImage(img, -8, -8);
+    canvas.width = 64;
+    canvas.height = 64;
+    context.drawImage(img, 0, 0);
 
     const faviconCanvas = document.createElement("canvas");
     const faviconContext = faviconCanvas.getContext("2d");
@@ -172,19 +170,30 @@ function extractAndSetFavicon(skin: string) {
     if (!faviconContext) return;
 
     faviconContext.imageSmoothingEnabled = false;
-    faviconContext.drawImage(canvas, 0, 0, 8, 8, 0, 0, 32, 32);
+
+    faviconContext.drawImage(canvas, 8, 8, 8, 8, 0, 0, 32, 32);
+
+    faviconContext.drawImage(canvas, 40, 8, 8, 8, 0, 0, 32, 32);
 
     const faviconUrl = faviconCanvas.toDataURL("image/png");
 
-    useHead({
-      link: [
-        {
-          rel: "icon",
-          href: faviconUrl,
-        },
-      ],
-    });
+    console.log("change image", faviconUrl);
+
+    changeFavicon(faviconUrl);
   };
+}
+
+function changeFavicon(faviconUrl: string) {
+  let link = document.querySelector<HTMLLinkElement>("link[rel*='icon']");
+
+  if (!link) {
+    link = document.createElement("link");
+    link.type = "image/x-icon";
+    link.rel = "icon";
+    document.getElementsByTagName("head")[0].appendChild(link);
+  }
+
+  link.href = faviconUrl;
 }
 
 function screenShot() {
@@ -224,7 +233,7 @@ function reset(skin: string) {
   });
 }
 
-defineExpose({ screenShot, reset });
+defineExpose({ screenShot, reset, extractAndSetFavicon });
 </script>
 
 <style lang="scss">

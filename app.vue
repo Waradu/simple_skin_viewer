@@ -201,6 +201,10 @@ async function getSkin() {
     const skinUrl = URL.createObjectURL(blob);
 
     skin.value = skinUrl;
+
+    if (viewerRef.value && viewerRef.value.extractAndSetFavicon) {
+      viewerRef.value.extractAndSetFavicon(skinUrl);
+    }
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);
@@ -223,8 +227,8 @@ function reset(removeSkin: boolean) {
     if (fileUpdateInterval !== null) {
       clearInterval(fileUpdateInterval);
       fileUpdateInterval = null;
-      skin.value = "/skin.png";
     }
+    skin.value = "/skin.png";
   } else {
     max.value = false;
 
