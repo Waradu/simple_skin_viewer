@@ -177,8 +177,6 @@ function extractAndSetFavicon(skin: string) {
 
     const faviconUrl = faviconCanvas.toDataURL("image/png");
 
-    console.log("change image", faviconUrl);
-
     changeFavicon(faviconUrl);
   };
 }
