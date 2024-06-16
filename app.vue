@@ -130,6 +130,9 @@
 <script lang="ts" setup>
 import Viewer from "~/components/Viewer.vue";
 
+const route = useRoute();
+const skinName = route.query.skin as string | undefined;
+
 const max = ref(false);
 
 const layers = ref([
@@ -294,6 +297,11 @@ onMounted(() => {
         await monitorFile(fileHandle);
       }
     });
+  }
+
+  if (skinName && input.value) {
+    input.value.value = skinName;
+    getSkin();
   }
 });
 
