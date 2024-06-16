@@ -73,7 +73,7 @@ onMounted(() => {
     canvas: document.getElementById("viewer") as HTMLCanvasElement,
     width: window.innerWidth,
     height: window.innerHeight,
-    zoom: 0.8,
+    zoom: 0.7,
     skin: skin.value,
     panorama: "/panoramas/panorama.jpg",
     model: model.value as "default" | "slim" | "auto-detect",

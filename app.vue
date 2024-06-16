@@ -1,6 +1,6 @@
 <template>
   <div class="context" v-if="!max">
-    <h2>Waradu's Skin Editor</h2>
+    <h2>Waradu's Skin Viewer</h2>
     <p>
       Click 'Change Skin' and select the skin file. Then, edit the local skin
       file with your preferred image or skin editor, and watch the website
@@ -27,7 +27,20 @@
       </div>
       <div class="hover-area"></div>
     </div>
-    <div class="center" :class="{ hidden: max }">
+    <div class="top" :class="{ hidden: max }">
+      <div class="get wrdu-floating">
+        <input
+          ref="input"
+          type="text"
+          name=""
+          id=""
+          placeholder="Get Skin from Name"
+        />
+        <button @click="getSkin">Go</button>
+      </div>
+      <div class="hover-area"></div>
+    </div>
+    <div class="bottom" :class="{ hidden: max }">
       <div class="actions wrdu-floating">
         <div class="action wrdu-element screenshot" @click="screenShot">
           <Iconsax name="Camera" thickness="2" />
@@ -170,6 +183,47 @@ const animation = ref({
 let fileUpdateInterval: ReturnType<typeof setInterval> | null = null;
 
 const skin = ref("/skin.png");
+
+const input = ref<HTMLInputElement | null>(null);
+
+async function getSkin() {
+  if (!input.value) return;
+  const skinName = input.value;
+
+  try {
+    const response = await fetch(
+      `https://api.mojang.com/users/profiles/minecraft/${skinName}`
+    );
+    if (!response.ok) throw new Error("User not found");
+
+    const data: { id: string } = await response.json();
+    const uuid = data.id;
+    const skinResponse = await fetch(
+      `https://sessionserver.mojang.com/session/minecraft/profile/${uuid}`
+    );
+    if (!skinResponse.ok) throw new Error("Skin not found");
+
+    const skinData: { properties: { name: string; value: string }[] } =
+      await skinResponse.json();
+    const skinProperty = skinData.properties.find(
+      (prop): prop is { name: string; value: string } =>
+        prop.name === "textures"
+    );
+
+    if (!skinProperty) throw new Error("Skin property not found");
+
+    const skinValue = skinProperty.value;
+    const skinUrl = JSON.parse(atob(skinValue)).textures.SKIN.url;
+
+    skin.value = skinUrl;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+    } else {
+      console.error("An unknown error occurred");
+    }
+  }
+}
 
 const viewerRef = ref<InstanceType<typeof Viewer> | null>(null);
 
@@ -335,26 +389,49 @@ body,
     left: 0;
     z-index: 100;
     pointer-events: none;
-    display: flex;
-    justify-content: space-between;
     color: white;
     font-family: Inter;
 
     .left,
     .right,
-    .center {
+    .bottom,
+    .top {
       display: flex;
       flex-direction: column;
       gap: 20px;
       justify-content: center;
-      min-width: 320px;
-      width: 320px;
+      min-width: 340px;
+      width: 340px;
       transition: translate 0.2s ease-in-out;
-      position: relative;
+      position: absolute;
       padding: 20px;
 
       .hover-area {
         display: none;
+      }
+
+      &.left {
+        top: 0;
+        bottom: 0;
+        left: 0;
+      }
+
+      &.bottom {
+        bottom: 0;
+        left: 50%;
+        translate: -50% 0;
+      }
+
+      &.top {
+        top: 0;
+        left: 50%;
+        translate: -50% 0;
+      }
+
+      &.right {
+        top: 0;
+        bottom: 0;
+        right: 0;
       }
 
       &.hidden {
@@ -365,18 +442,6 @@ body,
             right: -60px;
             width: 60px;
             height: 100%;
-          }
-        }
-
-        &.center {
-          height: max-content;
-          translate: 0 130px;
-          align-self: end;
-
-          .hover-area {
-            top: -60px;
-            width: 100%;
-            height: 60px;
           }
         }
 
@@ -392,7 +457,8 @@ body,
 
         &.left,
         &.right,
-        &.center {
+        &.bottom,
+        &.top {
           .hover-area {
             display: block;
             position: absolute;
@@ -404,6 +470,42 @@ body,
             pointer-events: all;
           }
         }
+
+        &.bottom {
+          height: max-content;
+          translate: -50% 130px;
+          align-self: end;
+
+          .hover-area {
+            top: -60px;
+            width: 100%;
+            height: 60px;
+          }
+
+          &:has(.hover-area:hover),
+          &:hover {
+            translate: -50% 0;
+            pointer-events: all;
+          }
+        }
+
+        &.top {
+          height: max-content;
+          translate: -50% -130px;
+          align-self: end;
+
+          .hover-area {
+            bottom: -60px;
+            width: 100%;
+            height: 60px;
+          }
+
+          &:has(.hover-area:hover),
+          &:hover {
+            translate: -50% 0;
+            pointer-events: all;
+          }
+        }
       }
 
       * {
@@ -411,7 +513,59 @@ body,
       }
     }
 
-    .center {
+    .top {
+      align-items: center;
+
+      .get {
+        width: max-content;
+        display: flex;
+        padding: 5px;
+        gap: 5px;
+        align-items: center;
+
+        input {
+          height: 36px;
+          padding-inline: 15px;
+          width: 100%;
+          color: white;
+          background: transparent;
+          transition: 0.1s ease-in-out;
+          border: none;
+          outline: none;
+          border-radius: 100px;
+
+          &::placeholder {
+            color: white;
+            opacity: 0.5;
+          }
+
+          &:hover,
+          &:focus {
+            background: rgba(250, 250, 250, 0.2);
+          }
+        }
+
+        button {
+          height: 36px;
+          padding-inline: 24px;
+          outline: none;
+          border: none;
+          cursor: pointer;
+          color: white;
+          background-color: rgba(36, 36, 36, 0.3);
+          transition: 0.1s ease-in-out;
+          border-radius: 100px;
+          width: max-content;
+          font-size: 16px;
+
+          &:hover {
+            background: rgba(36, 36, 36, 0.6);
+          }
+        }
+      }
+    }
+
+    .bottom {
       justify-content: end;
       align-items: center;
 
