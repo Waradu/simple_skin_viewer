@@ -195,7 +195,7 @@ useHead({
   meta: [
     {
       property: "og:title",
-      content: skinName + "'s Skin'",
+      content: skinName + "'s Skin",
     },
     {
       property: "og:description",
