@@ -288,7 +288,7 @@ function reset(removeSkin: boolean) {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   const upload = document.getElementById("upload");
   if (upload) {
     upload.addEventListener("click", async () => {
@@ -301,7 +301,29 @@ onMounted(() => {
 
   if (skinName && input.value) {
     input.value.value = skinName;
-    getSkin();
+    await getSkin();
+
+    useHead({
+      meta: [
+        {
+          property: "og:title",
+          content: input.value.value,
+        },
+        {
+          property: "og:image",
+          content: skin.value,
+        },
+        {
+          property: "og:description",
+          content:
+            "Preview any skin and even live updated changes on local skin files",
+        },
+        {
+          name: "theme-color",
+          content: "#ffffff",
+        },
+      ],
+    });
   }
 });
 
@@ -361,7 +383,7 @@ body,
 #__nuxt {
   width: 100%;
   height: 100%;
-  background-color: #0c0c0c;
+  background-color: #ffffff;
   overflow: hidden;
 
   .context {
