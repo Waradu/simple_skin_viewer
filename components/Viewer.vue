@@ -192,7 +192,6 @@ function screenShot() {
 
   skinViewer.width = 1920;
   skinViewer.height = 1080;
-  skinViewer.zoom = 0.8;
 
   skinViewer.render();
 
