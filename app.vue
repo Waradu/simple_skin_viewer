@@ -21,7 +21,7 @@
           <img :src="skin" alt="skin" />
         </div>
         <div class="upload">
-          <button id="upload">Change</button>
+          <button ref="upload">Change</button>
           <button id="remove" @click="reset(true)">Remove</button>
         </div>
       </div>
@@ -189,6 +189,7 @@ let fileUpdateInterval: ReturnType<typeof setInterval> | null = null;
 const skin = ref("/skin.png");
 
 const input = ref<HTMLInputElement | null>(null);
+const upload = ref<HTMLButtonElement | null>(null);
 
 useHead({
   meta: [
@@ -307,15 +308,34 @@ function reset(removeSkin: boolean) {
 }
 
 onMounted(async () => {
-  const upload = document.getElementById("upload");
-  if (upload) {
-    upload.addEventListener("click", async () => {
+  if (upload.value) {
+    upload.value.addEventListener("click", async () => {
       const fileHandle = await getFileHandle();
       if (fileHandle) {
         await monitorFile(fileHandle);
       }
     });
   }
+
+  document.addEventListener("dragover", (event) => {
+    event.preventDefault();
+  });
+
+  document.addEventListener("drop", async (event) => {
+    event.preventDefault();
+
+    if (event.dataTransfer) {
+      const file = event.dataTransfer.files[0];
+      if (file) {
+        const skinUrl = URL.createObjectURL(file);
+        skin.value = skinUrl;
+
+        if (viewerRef.value && viewerRef.value.extractAndSetFavicon) {
+          viewerRef.value.extractAndSetFavicon(skinUrl);
+        }
+      }
+    }
+  });
 
   if (skinName && input.value) {
     input.value.value = skinName;
