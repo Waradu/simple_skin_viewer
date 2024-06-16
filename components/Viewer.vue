@@ -212,6 +212,8 @@ function reset(skin: string) {
 
   skinViewer.dispose();
 
+  extractAndSetFavicon(skin);
+
   skinViewer = new SkinViewer({
     canvas: document.getElementById("viewer") as HTMLCanvasElement,
     width: window.innerWidth,
