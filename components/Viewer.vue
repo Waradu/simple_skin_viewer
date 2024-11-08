@@ -65,6 +65,7 @@ const props = defineProps({
 const model = ref(props.model);
 const animation = ref(props.animation);
 const skin = ref(props.skin);
+const panorama = ref("galaxy.png");
 
 let skinViewer: SkinViewer | null = null;
 
@@ -75,7 +76,7 @@ onMounted(() => {
     height: window.innerHeight,
     zoom: 0.7,
     skin: skin.value,
-    panorama: "/panoramas/panorama.jpg",
+    panorama: `/panoramas/${panorama.value}`,
     model: model.value as "default" | "slim" | "auto-detect",
   });
 
@@ -227,7 +228,7 @@ function reset(skin: string) {
     height: window.innerHeight,
     zoom: 0.8,
     skin: skin,
-    panorama: "/panoramas/panorama.jpg",
+    panorama: `/panoramas/${panorama.value}`,
     model: model.value as "default" | "slim" | "auto-detect",
   });
 }

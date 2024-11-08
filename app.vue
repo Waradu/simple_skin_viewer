@@ -25,6 +25,25 @@
           <button id="remove" @click="reset(true)">Remove</button>
         </div>
       </div>
+      <div class="wrdu-floating panorama">
+        <button
+          class="pano selected"
+          @click="set_panorama('galaxy.png', false, 0)"
+          id="pano-0"
+        >
+          Galaxy
+        </button>
+        <button class="pano" @click="set_panorama('world.jpg', false, 1)" id="pano-1">
+          World
+        </button>
+        <button class="pano" @click="set_panorama('hills.png', false, 2)" id="pano-2">
+          Hills
+        </button>
+        <button class="pano" @click="set_panorama('water.png', false, 3)" id="pano-3">
+          Water
+        </button>
+        <button class="pano" ref="panorama" id="custom">Custom</button>
+      </div>
       <div class="hover-area"></div>
     </div>
     <div class="top" :class="{ hidden: max }">
@@ -190,6 +209,7 @@ const skin = ref("/skin.png");
 
 const input = ref<HTMLInputElement | null>(null);
 const upload = ref<HTMLButtonElement | null>(null);
+const panorama = ref<HTMLButtonElement | null>(null);
 
 useHead({
   meta: [
@@ -383,6 +403,10 @@ async function monitorFile(fileHandle: FileSystemFileHandle) {
     }
   }, 2000);
 }
+
+function set_panorama(pano: string, custom: boolean, id: number) {
+  
+}
 </script>
 
 <style lang="scss">
@@ -399,7 +423,7 @@ body,
 #__nuxt {
   width: 100%;
   height: 100%;
-  background-color: #ffffff;
+  background-color: #000;
   overflow: hidden;
 
   .context {
@@ -734,6 +758,39 @@ body,
             &:hover {
               background: rgba(36, 36, 36, 0.6);
             }
+          }
+        }
+      }
+    }
+
+    .panorama {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      width: 100%;
+
+      button {
+        padding: 10px;
+        padding-inline: 24px;
+        outline: none;
+        border: none;
+        cursor: pointer;
+        color: white;
+        background: rgba(250, 250, 250, 0.2);
+        transition: 0.1s ease-in-out;
+        border-radius: 11px;
+        width: 100%;
+        font-size: 16px;
+
+        &:hover {
+          background: rgba(250, 250, 250, 0.4);
+        }
+
+        &.selected {
+          background-color: rgba(36, 36, 36, 0.3);
+
+          &:hover {
+            background: rgba(36, 36, 36, 0.6);
           }
         }
       }
